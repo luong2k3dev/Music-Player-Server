@@ -1,0 +1,35 @@
+{
+	"name": "btl-hit-nodejs",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"scripts": {
+		"format": "prettier --single-quote --trailing-comma all --tab-width 4 --write src/**/*.{js,json}",
+		"start": "nodemon --inspect ./src/server.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"lint-staged": {
+		"src/**/*.{js,json}": "prettier --single-quote --trailing-comma all --tab-width 4 --write"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"devDependencies": {
+		"husky": "^8.0.3",
+		"lint-staged": "^13.2.3",
+		"nodemon": "^2.0.22",
+		"prettier": "^2.8.8"
+	},
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"http-status": "^1.6.2",
+		"jsonwebtoken": "^9.0.0",
+		"mongoose": "^7.3.1"
+	}
+}
