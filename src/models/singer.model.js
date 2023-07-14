@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { toJSON } = require('./plugins/index.plugin');
+const { toJSON, paginate } = require('./plugins/index.plugin');
 
 const singerSchema = mongoose.Schema(
     {
@@ -20,6 +20,7 @@ const singerSchema = mongoose.Schema(
 );
 
 singerSchema.plugin(toJSON);
+singerSchema.plugin(paginate);
 
 const Singer = mongoose.model('Singer', singerSchema);
 
