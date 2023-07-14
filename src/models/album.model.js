@@ -27,11 +27,11 @@ const albumSchema = mongoose.Schema(
             type: String,
         },
     },
-    { timestimestamp: true },
+    { timestamps: true },
 );
 
 albumSchema.plugin(toJSON);
 
-const Album = mongoose.model('Album ', albumSchema);
+const Album = mongoose.model('Album', albumSchema);
 
 module.exports = Album;

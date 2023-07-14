@@ -16,11 +16,11 @@ const singerSchema = mongoose.Schema(
             default: 'Việt Nam',
         },
     },
-    { timestimestamp: true },
+    { timestamps: true },
 );
 
 singerSchema.plugin(toJSON);
 
-const Singer = mongoose.model('Singer ', singerSchema);
+const Singer = mongoose.model('Singer', singerSchema);
 
 module.exports = Singer;

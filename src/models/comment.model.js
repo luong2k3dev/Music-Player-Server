@@ -23,11 +23,11 @@ const commentSchema = mongoose.Schema(
             default: Date.now,
         },
     },
-    { timestimestamp: true },
+    { timestamps: true },
 );
 
 commentSchema.plugin(toJSON);
 
-const Comment = mongoose.model('Comment ', commentSchema);
+const Comment = mongoose.model('Comment', commentSchema);
 
 module.exports = Comment;

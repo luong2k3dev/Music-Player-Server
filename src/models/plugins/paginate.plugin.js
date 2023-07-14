@@ -42,8 +42,21 @@ const paginate = (schema) => {
                 : 1;
         const skip = (page - 1) * limit;
 
-        const countPromise = this.countDocuments(filter).exec();
-        let docsPromise = this.find(filter).sort(sort).skip(skip).limit(limit);
+        const fuzzyFilter = {};
+        for (const key in filter) {
+            if (filter.hasOwnProperty(key)) {
+                fuzzyFilter[key] = {
+                    $regex: new RegExp(filter[key], 'i'),
+                };
+            }
+        }
+        console.log({ fuzzyFilter });
+
+        const countPromise = this.countDocuments(fuzzyFilter).exec();
+        let docsPromise = this.find(fuzzyFilter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit);
 
         if (options.populate) {
             options.populate.split(',').forEach((populateOption) => {

@@ -24,11 +24,11 @@ const songSchema = mongoose.Schema(
             required: true,
         },
     },
-    { timestimestamp: true },
+    { timestamps: true },
 );
 
 songSchema.plugin(toJSON);
 
-const Song = mongoose.model('Song ', songSchema);
+const Song = mongoose.model('Song', songSchema);
 
 module.exports = Song;
