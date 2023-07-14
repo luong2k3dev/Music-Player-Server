@@ -24,8 +24,16 @@ const getUser = catchAsync(async (req, res) => {
 });
 
 const getUsers = catchAsync(async (req, res) => {
-    const filter = pick(req.query, ['name', 'role']);
-    const options = pick(req.query, ['sortBy', 'limit', 'page']);
+    const filter = pick(req.query, [
+        'username',
+        'email',
+        'firstName',
+        'lastName',
+        'role',
+    ]);
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    // console.log(filter);
+    // console.log(options);
     const users = await User.paginate(filter, options);
     res.status(httpStatus.OK).json({ users });
 });

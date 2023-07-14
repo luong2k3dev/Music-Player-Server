@@ -26,11 +26,11 @@ const playlistSchema = mongoose.Schema(
             default: Date.now,
         },
     },
-    { timestimestamp: true },
+    { timestamps: true },
 );
 
 playlistSchema.plugin(toJSON);
 
-const Playlist = mongoose.model('Playlist ', playlistSchema);
+const Playlist = mongoose.model('Playlist', playlistSchema);
 
 module.exports = Playlist;
