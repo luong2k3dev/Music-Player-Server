@@ -18,14 +18,14 @@ const routes = [
         path: '/auth',
         route: authRoute,
     },
-    // {
-    //     path: '/songs',
-    //     route: songRoute,
-    // },
-    // {
-    //     path: '/singers',
-    //     route: singerRoute,
-    // },
+    {
+        path: '/songs',
+        route: songRoute,
+    },
+    {
+        path: '/singers',
+        route: singerRoute,
+    },
     // {
     //     path: '/albums',
     //     route: albumRoute,
