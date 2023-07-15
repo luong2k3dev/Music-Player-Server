@@ -1,22 +1,24 @@
 const express = require('express');
+const { singerController } = require('../../controllers/index.controller');
 
-const {
-    getSingers,
-    getSinger,
-    createSinger,
-    updateSinger,
-    deleteSinger,
-} = require('../../controllers/singer.controller');
-
-const authMiddleware = require('../../middlewares/auth');
 const singerRouter = express.Router();
 
-singerRouter.route('/').get(getSingers).post(createSinger);
+singerRouter
+    .route('/')
+    .get(singerController.getSingers)
+    .post(singerController.createSinger);
 
 singerRouter
     .route('/:singerId')
-    .get(getSinger)
-    .put(updateSinger)
-    .delete(deleteSinger);
+    .get(singerController.getSinger)
+    .put(singerController.updateSinger)
+    .delete(singerController.deleteSinger);
+
+singerRouter
+    .route('/:singerId/all-songs')
+    .get(singerController.getSongsBySingerId);
+singerRouter
+    .route('/:singerId/all-albums')
+    .get(singerController.getAlbumsBySingerId);
 
 module.exports = singerRouter;
