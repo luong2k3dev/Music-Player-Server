@@ -8,16 +8,33 @@ const songSchema = mongoose.Schema(
             type: String,
             required: true,
         },
-        singer: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Singer',
-            required: true,
-        },
+        singers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Singer',
+                required: true,
+            },
+        ],
         duration: {
             type: Number,
         },
         genre: {
             type: String,
+        },
+        lyrics: {
+            type: String,
+        },
+        countListen: {
+            type: Number,
+            default: 0,
+        },
+        likeNumber: {
+            type: Number,
+            default: 0,
+        },
+        dislikeNumber: {
+            type: Number,
+            default: 0,
         },
         filePath: {
             type: String,

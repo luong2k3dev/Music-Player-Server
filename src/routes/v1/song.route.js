@@ -1,5 +1,6 @@
 const express = require('express');
 const { songController } = require('../../controllers/index.controller');
+
 const songRouter = express.Router();
 
 songRouter
@@ -12,5 +13,11 @@ songRouter
     .get(songController.getSong)
     .put(songController.updateSong)
     .delete(songController.deleteSong);
+
+songRouter.route('/:songId/listen').post(songController.incrementCountListen);
+songRouter.route('/:songId/like').post(songController.incrementLikeNumber);
+songRouter
+    .route('/:songId/dislike')
+    .post(songController.incrementDislikeNumber);
 
 module.exports = songRouter;

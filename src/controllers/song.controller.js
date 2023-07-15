@@ -1,5 +1,4 @@
-const Singer = require('../models/singer.model');
-const Song = require('../models/song.model');
+const { Song } = require('../models/index.model');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -7,16 +6,9 @@ const pick = require('../utils/pick');
 
 const createSong = catchAsync(async (req, res) => {
     const newSong = req.body;
-    const { title, singer } = newSong;
-    if (!title || !singer) {
-        throw new ApiError(
-            httpStatus.BAD_REQUEST,
-            'Title or Singer is required',
-        );
-    }
     const existSong = await Song.findOne({
-        title: title.newSong,
-        singer: singer.newSong,
+        title: newSong.title,
+        singers: newSong.singers,
     });
     if (existSong) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Song alreary is exist!');
@@ -34,7 +26,10 @@ const getSongs = catchAsync(async (req, res) => {
 
 const getSong = catchAsync(async (req, res) => {
     const { songId } = req.params;
-    const song = await Song.findById(songId);
+    const song = await Song.findById(songId).populate({
+        path: 'singers',
+        select: '-createdAt -updatedAt -__v',
+    });
     if (!song) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
     }
@@ -42,11 +37,14 @@ const getSong = catchAsync(async (req, res) => {
 });
 
 const updateSong = catchAsync(async (req, res) => {
-    const updateSong = req.body;
     const { songId } = req.params;
+    const updateSong = req.body;
     const song = await Song.findByIdAndUpdate(songId, updateSong, {
         new: true,
     });
+    if (!song) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
+    }
     res.status(httpStatus.OK).json({ song });
 });
 
@@ -56,7 +54,40 @@ const deleteSong = catchAsync(async (req, res) => {
     if (!song) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
     }
-    res.status(httpStatus.OK);
+    res.status(httpStatus.OK).json({ song });
+});
+
+const incrementCountListen = catchAsync(async (req, res) => {
+    const { songId } = req.params;
+    const song = await Song.findById(songId);
+    if (!song) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
+    }
+    song.countListen += 1;
+    await song.save();
+    res.status(httpStatus.OK).json({ song });
+});
+
+const incrementLikeNumber = catchAsync(async (req, res) => {
+    const { songId } = req.params;
+    const song = await Song.findById(songId);
+    if (!song) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
+    }
+    song.likeNumber += 1;
+    await song.save();
+    res.status(httpStatus.OK).json({ song });
+});
+
+const incrementDislikeNumber = catchAsync(async (req, res) => {
+    const { songId } = req.params;
+    const song = await Song.findById(songId);
+    if (!song) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
+    }
+    song.dislikeNumber += 1;
+    await song.save();
+    res.status(httpStatus.OK).json({ song });
 });
 
 module.exports = {
@@ -65,4 +96,7 @@ module.exports = {
     getSongs,
     updateSong,
     deleteSong,
+    incrementCountListen,
+    incrementLikeNumber,
+    incrementDislikeNumber,
 };
