@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { toJSON } = require('./plugins/index.plugin');
+const { toJSON, paginate } = require('./plugins/index.plugin');
 
 const albumSchema = mongoose.Schema(
     {
@@ -31,6 +31,7 @@ const albumSchema = mongoose.Schema(
 );
 
 albumSchema.plugin(toJSON);
+albumSchema.plugin(paginate);
 
 const Album = mongoose.model('Album', albumSchema);
 

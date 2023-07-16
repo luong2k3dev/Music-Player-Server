@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { toJSON } = require('./plugins/index.plugin');
+const { toJSON, paginate } = require('./plugins/index.plugin');
 
 const playlistSchema = mongoose.Schema(
     {
@@ -30,6 +30,7 @@ const playlistSchema = mongoose.Schema(
 );
 
 playlistSchema.plugin(toJSON);
+playlistSchema.plugin(paginate);
 
 const Playlist = mongoose.model('Playlist', playlistSchema);
 

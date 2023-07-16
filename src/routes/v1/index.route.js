@@ -26,18 +26,18 @@ const routes = [
         path: '/singers',
         route: singerRoute,
     },
-    // {
-    //     path: '/albums',
-    //     route: albumRoute,
-    // },
-    // {
-    //     path: '/playlists',
-    //     route: playlistRoute,
-    // },
-    // {
-    //     path: '/comments',
-    //     route: commentRoute,
-    // },
+    {
+        path: '/albums',
+        route: albumRoute,
+    },
+    {
+        path: '/playlists',
+        route: playlistRoute,
+    },
+    {
+        path: '/comments',
+        route: commentRoute,
+    },
 ];
 
 routes.map((route) => {
