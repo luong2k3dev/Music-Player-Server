@@ -1,4 +1,4 @@
-const { User, Song, Playlist } = require('../models/index.model');
+const { User, Song, Playlist, Comment } = require('../models/index.model');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -73,7 +73,9 @@ const deleteUser = catchAsync(async (req, res) => {
 const getFavoriteSongs = catchAsync(async (req, res) => {
     const userId = req.user.id;
     const user = await User.findById(userId);
-    const favoriteSongs = await Song.find({ _id: { $in: user.favoriteSongs } });
+    const favoriteSongs = await Song.find({
+        _id: { $in: user.favoriteSongs },
+    }).populate('singers');
     res.status(httpStatus.OK).json({ favoriteSongs });
 });
 
@@ -94,7 +96,7 @@ const addSongToFavorite = catchAsync(async (req, res) => {
     user.favoriteSongs.push(songId);
     await user.save();
     res.status(httpStatus.OK).json({
-        message: 'Song is already in the favorites!',
+        message: 'Song added to favorites successfully!',
     });
 });
 
@@ -121,14 +123,19 @@ const deleteSongFromFavorite = catchAsync(async (req, res) => {
 
 const getPlaylists = catchAsync(async (req, res) => {
     const userId = req.user.id;
-    const user = await User.findById(userId);
-    const playlists = await Playlist.find({ createBy: userId });
+    const playlists = await Playlist.find({ createBy: userId }).populate(
+        'songs',
+    );
     res.status(httpStatus.OK).json({ playlists });
 });
 
 const createPlaylist = catchAsync(async (req, res) => {
     const userId = req.user.id;
     const { title } = req.body;
+    const playlist = await Playlist.findOne({ title: title });
+    if (playlist) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Playlist already exists');
+    }
     const newPlaylist = new Playlist({
         title,
         createBy: userId,
@@ -169,7 +176,9 @@ const getSongsFromPlaylist = catchAsync(async (req, res) => {
             'You are not authorized to access this playlist!',
         );
     }
-    const songs = await Song.find({ _id: { $in: playlist.songs } });
+    const songs = await Song.find({ _id: { $in: playlist.songs } }).populate(
+        'singers',
+    );
     res.status(httpStatus.OK).json({ songs });
 });
 
@@ -217,14 +226,6 @@ const deleteSongFromPlaylist = catchAsync(async (req, res) => {
             'You are not authorized to access this playlist!',
         );
     }
-    if (playlist.songs.includes(songId)) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Song already in playlist!');
-    }
-    playlist.songs.push(songId);
-    await playlist.save();
-    res.status(httpStatus.OK).json({
-        message: 'Song added to the playlist successfully!',
-    });
     if (!playlist.songs.includes(songId)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Song not in playlist!');
     }
@@ -237,7 +238,14 @@ const deleteSongFromPlaylist = catchAsync(async (req, res) => {
 
 const getComments = catchAsync(async (req, res) => {
     const userId = req.user.id;
-    const comments = await Comment.find({ user: userId });
+    const comments = await Comment.find({ user: userId }).populate('song');
+    res.status(200).json({ comments });
+});
+
+const getCommentsBySongId = catchAsync(async (req, res) => {
+    const userId = req.user.id;
+    const { songId } = req.params;
+    const comments = await Comment.find({ user: userId, song: songId });
     res.status(200).json({ comments });
 });
 
@@ -252,7 +260,7 @@ const createComment = catchAsync(async (req, res) => {
     const newComment = new Comment({
         song: songId,
         content: comment,
-        createBy: userId,
+        user: userId,
     });
     await newComment.save();
     res.status(httpStatus.OK).json({ newComment });
@@ -265,7 +273,7 @@ const deleteComment = catchAsync(async (req, res) => {
         throw new ApiError(httpStatus.NOT_FOUND, 'Comment not found!');
     }
     const userId = req.user.id;
-    if (comment.createBy.toString() !== userId) {
+    if (comment.user.toString() !== userId) {
         throw new ApiError(
             httpStatus.FORBIDDEN,
             'You are not authorized to access this comment!',
@@ -293,6 +301,7 @@ module.exports = {
     addSongToPlaylist,
     deleteSongFromPlaylist,
     getComments,
+    getCommentsBySongId,
     createComment,
     deleteComment,
 };

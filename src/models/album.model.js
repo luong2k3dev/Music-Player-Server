@@ -10,6 +10,7 @@ const albumSchema = mongoose.Schema(
         },
         image: {
             type: String,
+            default: 'No image',
         },
         songs: [
             {

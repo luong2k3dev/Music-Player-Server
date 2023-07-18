@@ -55,10 +55,9 @@ const getSongsBySingerId = catchAsync(async (req, res) => {
     if (!singer) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Singer not found!');
     }
-    const songs = await Song.find({ singers: { $in: [singerId] } }).populate({
-        path: 'singers',
-        select: '-createdAt -updatedAt -__v',
-    });
+    const songs = await Song.find({ singers: { $in: [singerId] } }).populate(
+        'singers',
+    );
     res.status(httpStatus.OK).json({ songs });
 });
 
@@ -66,12 +65,11 @@ const getAlbumsBySingerId = catchAsync(async (req, res) => {
     const { singerId } = req.params;
     const singer = await Singer.findById(singerId);
     if (!singer) {
-        throw new ApiError(httpStatus.NOT_FOUND, 'Singer not found!').populate({
-            path: 'singers',
-            select: '-createdAt -updatedAt -__v',
-        });
+        throw new ApiError(httpStatus.NOT_FOUND, 'Singer not found!');
     }
-    const albums = await Album.find({ singers: { $in: [singerId] } });
+    const albums = await Album.find({ singers: { $in: [singerId] } })
+        .populate('songs')
+        .populate('singers');
     res.status(httpStatus.OK).json({ albums });
 });
 

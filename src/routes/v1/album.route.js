@@ -3,27 +3,30 @@ const { albumController } = require('../../controllers/index.controller');
 
 const albumRouter = express.Router();
 
+const { auth, authorize } = require('../../middlewares/auth');
+
 albumRouter
     .route('/')
-    .get(albumController.getAlbums)
-    .post(albumController.createAlbum);
+    .get(auth, albumController.getAlbums)
+    .post(auth, authorize(['admin']), albumController.createAlbum);
 
 albumRouter
     .route('/:albumId')
-    .get(albumController.getAlbum)
-    .put(albumController.updateAlbum)
-    .delete(albumController.deleteAlbum);
-
-albumRouter.route('/:albumId/all-songs').get(albumController.getSongsFromAlbum);
+    .get(auth, albumController.getAlbum)
+    .put(auth, authorize(['admin']), albumController.updateAlbum)
+    .delete(auth, authorize(['admin']), albumController.deleteAlbum);
 
 albumRouter
-    .route('/:albumId/all-singers')
-    .get(albumController.getSingersFromAlbum);
-
-albumRouter.route('/:albumId/add-song').post(albumController.addSongToAlbum);
+    .route('/:albumId/songs')
+    .get(auth, albumController.getSongsFromAlbum);
 
 albumRouter
-    .route('/:albumId/remove-song')
-    .delete(albumController.deleteSongFromAlbum);
+    .route('/:albumId/singers')
+    .get(auth, albumController.getSingersFromAlbum);
+
+albumRouter
+    .route('/:albumId/:songId')
+    .post(auth, authorize(['admin']), albumController.addSongToAlbum)
+    .delete(auth, authorize(['admin']), albumController.deleteSongFromAlbum);
 
 module.exports = albumRouter;
