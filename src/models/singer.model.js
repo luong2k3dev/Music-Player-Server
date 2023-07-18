@@ -8,6 +8,10 @@ const singerSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        image: {
+            type: String,
+            default: 'No image',
+        },
         detail: {
             type: String,
         },

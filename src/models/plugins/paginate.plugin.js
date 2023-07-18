@@ -50,7 +50,6 @@ const paginate = (schema) => {
                 };
             }
         }
-        console.log({ fuzzyFilter });
 
         const countPromise = this.countDocuments(fuzzyFilter).exec();
         let docsPromise = this.find(fuzzyFilter)

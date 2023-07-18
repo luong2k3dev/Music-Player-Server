@@ -6,7 +6,7 @@ const pick = require('../utils/pick');
 
 const createAlbum = catchAsync(async (req, res) => {
     const newAlbum = req.body;
-    const album = Album.findOne({ title: newAlbum.title });
+    const album = await Album.findOne({ title: newAlbum.title });
     if (album) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Album already exists');
     }
@@ -16,7 +16,9 @@ const createAlbum = catchAsync(async (req, res) => {
 
 const getAlbum = catchAsync(async (req, res) => {
     const { albumId } = req.params;
-    const album = await Album.findById(albumId);
+    const album = await Album.findById(albumId)
+        .populate('songs')
+        .populate('singers');
     if (!album) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Album not found!');
     }
@@ -66,7 +68,9 @@ const getSongsFromAlbum = catchAsync(async (req, res) => {
     if (!album) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Album not found!');
     }
-    const songs = await Song.find({ _id: { $in: album.songs } });
+    const songs = await Song.find({ _id: { $in: album.songs } }).populate(
+        'singers',
+    );
     res.status(httpStatus.OK).json({ songs });
 });
 
@@ -81,8 +85,7 @@ const getSingersFromAlbum = catchAsync(async (req, res) => {
 });
 
 const addSongToAlbum = catchAsync(async (req, res) => {
-    const { albumId } = req.params;
-    const { songId } = req.body;
+    const { albumId, songId } = req.params;
     const album = await Album.findById(albumId);
     const song = await Song.findById(songId);
     if (!album) {
@@ -102,8 +105,7 @@ const addSongToAlbum = catchAsync(async (req, res) => {
 });
 
 const deleteSongFromAlbum = catchAsync(async (req, res) => {
-    const { albumId } = req.params;
-    const { songId } = req.body;
+    const { albumId, songId } = req.params;
     const album = await Album.findById(albumId);
     if (!album) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Album not found!');

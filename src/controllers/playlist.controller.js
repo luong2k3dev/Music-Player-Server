@@ -6,7 +6,7 @@ const pick = require('../utils/pick');
 
 const createPlaylist = catchAsync(async (req, res) => {
     const newPlaylist = req.body;
-    const playlist = Playlist.findOne({ title: newPlaylist.title });
+    const playlist = await Playlist.findOne({ title: newPlaylist.title });
     if (playlist) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Playlist already exists');
     }
@@ -16,7 +16,7 @@ const createPlaylist = catchAsync(async (req, res) => {
 
 const getPlaylist = catchAsync(async (req, res) => {
     const { playlistId } = req.params;
-    const playlist = await Playlist.findById(playlistId);
+    const playlist = await Playlist.findById(playlistId).populate('songs');
     if (!playlist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Playlist not found!');
     }
@@ -69,13 +69,14 @@ const getSongsFromPlaylist = catchAsync(async (req, res) => {
     if (!playlist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Playlist not found!');
     }
-    const songs = await Song.find({ _id: { $in: playlist.songs } });
+    const songs = await Song.find({ _id: { $in: playlist.songs } }).populate(
+        'singers',
+    );
     res.status(httpStatus.OK).json({ songs });
 });
 
 const addSongToPlaylist = catchAsync(async (req, res) => {
-    const { playlistId } = req.params;
-    const { songId } = req.body;
+    const { playlistId, songId } = req.params;
     const playlist = await Playlist.findById(playlistId);
     const song = await Song.findById(songId);
     if (!playlist) {
@@ -95,8 +96,7 @@ const addSongToPlaylist = catchAsync(async (req, res) => {
 });
 
 const deleteSongFromPlaylist = catchAsync(async (req, res) => {
-    const { playlistId } = req.params;
-    const { songId } = req.body;
+    const { playlistId, songId } = req.params;
     const playlist = await Playlist.findById(playlistId);
     if (!playlist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Playlist not found!');

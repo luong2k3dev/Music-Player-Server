@@ -8,6 +8,10 @@ const songSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        image: {
+            type: String,
+            default: 'No image',
+        },
         singers: [
             {
                 type: mongoose.Schema.Types.ObjectId,

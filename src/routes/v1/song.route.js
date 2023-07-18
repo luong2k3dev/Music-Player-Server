@@ -3,21 +3,27 @@ const { songController } = require('../../controllers/index.controller');
 
 const songRouter = express.Router();
 
+const { auth, authorize } = require('../../middlewares/auth');
+
 songRouter
     .route('/')
-    .get(songController.getSongs)
-    .post(songController.createSong);
+    .get(auth, songController.getSongs)
+    .post(auth, authorize(['admin']), songController.createSong);
 
 songRouter
     .route('/:songId')
-    .get(songController.getSong)
-    .put(songController.updateSong)
-    .delete(songController.deleteSong);
+    .get(auth, songController.getSong)
+    .put(auth, authorize(['admin']), songController.updateSong)
+    .delete(auth, authorize(['admin']), songController.deleteSong);
 
-songRouter.route('/:songId/listen').post(songController.incrementCountListen);
-songRouter.route('/:songId/like').post(songController.incrementLikeNumber);
+songRouter
+    .route('/:songId/listen')
+    .post(auth, songController.incrementCountListen);
+songRouter
+    .route('/:songId/like')
+    .post(auth, songController.incrementLikeNumber);
 songRouter
     .route('/:songId/dislike')
-    .post(songController.incrementDislikeNumber);
+    .post(auth, songController.incrementDislikeNumber);
 
 module.exports = songRouter;

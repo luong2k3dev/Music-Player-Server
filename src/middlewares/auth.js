@@ -16,7 +16,6 @@ const auth = catchAsync(async (req, res, next) => {
     if (!user) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
     }
-    console.log(user);
     req.user = user;
     next();
 });

@@ -26,10 +26,7 @@ const getSongs = catchAsync(async (req, res) => {
 
 const getSong = catchAsync(async (req, res) => {
     const { songId } = req.params;
-    const song = await Song.findById(songId).populate({
-        path: 'singers',
-        select: '-createdAt -updatedAt -__v',
-    });
+    const song = await Song.findById(songId).populate('singers');
     if (!song) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
     }

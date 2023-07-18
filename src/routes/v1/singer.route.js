@@ -3,22 +3,24 @@ const { singerController } = require('../../controllers/index.controller');
 
 const singerRouter = express.Router();
 
+const { auth, authorize } = require('../../middlewares/auth');
+
 singerRouter
     .route('/')
-    .get(singerController.getSingers)
-    .post(singerController.createSinger);
+    .get(auth, singerController.getSingers)
+    .post(auth, authorize(['admin']), singerController.createSinger);
 
 singerRouter
     .route('/:singerId')
-    .get(singerController.getSinger)
-    .put(singerController.updateSinger)
-    .delete(singerController.deleteSinger);
+    .get(auth, singerController.getSinger)
+    .put(auth, authorize(['admin']), singerController.updateSinger)
+    .delete(auth, authorize(['admin']), singerController.deleteSinger);
 
 singerRouter
-    .route('/:singerId/all-songs')
-    .get(singerController.getSongsBySingerId);
+    .route('/:singerId/songs')
+    .get(auth, singerController.getSongsBySingerId);
 singerRouter
-    .route('/:singerId/all-albums')
-    .get(singerController.getAlbumsBySingerId);
+    .route('/:singerId/albums')
+    .get(auth, singerController.getAlbumsBySingerId);
 
 module.exports = singerRouter;

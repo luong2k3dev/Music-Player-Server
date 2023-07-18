@@ -2,17 +2,23 @@ const { Comment, Song, User } = require('../models/index.model');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
+const pick = require('../utils/pick');
 
 const getComments = catchAsync(async (req, res) => {
-    const comments = await Comment.find({});
+    const filter = pick(req.query, ['content']);
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    const comments = await Comment.paginate(filter, options);
     res.status(httpStatus.OK).json({ comments });
 });
 
 const getComment = catchAsync(async (req, res) => {
     const { commentId } = req.params;
-    const comment = await Comment.findById(commentId);
-    if (!comment)
+    const comment = await Comment.findById(commentId)
+        .populate('song')
+        .populate('user');
+    if (!comment) {
         throw new ApiError(httpStatus.NOT_FOUND, 'comment not found!');
+    }
     res.status(httpStatus.OK).json({ comment });
 });
 
@@ -49,7 +55,9 @@ const getCommentsBySongId = catchAsync(async (req, res) => {
     if (!song) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
     }
-    const comments = await Comment.find({ song: songId });
+    const comments = await Comment.find({ song: songId })
+        .populate('song')
+        .populate('user');
     res.status(httpStatus.OK).json({ comments });
 });
 
@@ -59,7 +67,9 @@ const getCommentsByUserId = catchAsync(async (req, res) => {
     if (!user) {
         throw new ApiError(httpStatus.NOT_FOUND, 'user not found!');
     }
-    const comments = await Comment.find({ user: userId });
+    const comments = await Comment.find({ user: userId })
+        .populate('song')
+        .populate('user');
     res.status(httpStatus.OK).json({ comments });
 });
 

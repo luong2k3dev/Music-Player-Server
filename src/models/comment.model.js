@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const { toJSON } = require('./plugins/index.plugin');
+const { toJSON, paginate } = require('./plugins/index.plugin');
 
 const commentSchema = mongoose.Schema(
     {
@@ -27,6 +27,7 @@ const commentSchema = mongoose.Schema(
 );
 
 commentSchema.plugin(toJSON);
+commentSchema.plugin(paginate);
 
 const Comment = mongoose.model('Comment', commentSchema);
 
