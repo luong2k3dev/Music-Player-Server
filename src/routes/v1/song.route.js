@@ -1,5 +1,6 @@
 const express = require('express');
 const { songController } = require('../../controllers/index.controller');
+const { uploadService } = require('../../services/index.service');
 
 const songRouter = express.Router();
 
@@ -8,7 +9,12 @@ const { auth, authorize } = require('../../middlewares/auth');
 songRouter
     .route('/')
     .get(auth, songController.getSongs)
-    .post(auth, authorize(['admin']), songController.createSong);
+    .post(
+        auth,
+        authorize(['admin']),
+        uploadService.uploadAudio.single('filePath'),
+        songController.createSong,
+    );
 
 songRouter
     .route('/:songId')

@@ -3,6 +3,8 @@ const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
+const { uploadService } = require('../services/index.service');
+const cloudinary = require('cloudinary').v2;
 
 const createUser = catchAsync(async (req, res) => {
     const newUser = req.body;
@@ -12,6 +14,8 @@ const createUser = catchAsync(async (req, res) => {
     if (await User.isEmailTaken(newUser.email)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
     }
+    console.log(req.file);
+    newUser.avatar = req.file?.path;
     const user = await User.create(newUser);
     res.status(httpStatus.CREATED).json({ user });
 });
@@ -41,7 +45,6 @@ const updateUser = catchAsync(async (req, res) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
     const userBody = req.body;
-
     if (userBody.username) {
         if (await User.isUsernameTaken(userBody.username, userId)) {
             throw new ApiError(
@@ -50,15 +53,18 @@ const updateUser = catchAsync(async (req, res) => {
             );
         }
     }
-
     if (userBody.email) {
         if (await User.isEmailTaken(userBody.email, userId)) {
             throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
         }
     }
-
+    if (req.file) {
+        userBody.avatar = req.file?.path;
+    }
+    const avatarPath = user.avatar;
     Object.assign(user, userBody);
     const updateUser = await user.save();
+    if (userBody.avatar) uploadService.delete_image(avatarPath);
     res.status(httpStatus.OK).json({ updateUser });
 });
 
@@ -67,6 +73,7 @@ const deleteUser = catchAsync(async (req, res) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
     await user.deleteOne();
+    uploadService.delete_image(user.avatar);
     res.status(httpStatus.OK).json({ user });
 });
 

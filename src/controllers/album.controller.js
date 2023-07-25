@@ -10,6 +10,8 @@ const createAlbum = catchAsync(async (req, res) => {
     if (album) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Album already exists');
     }
+    console.log(req.file);
+    newAlbum.image = req.file?.path;
     const albumCreated = await Album.create(newAlbum);
     res.status(httpStatus.CREATED).json({ albumCreated });
 });

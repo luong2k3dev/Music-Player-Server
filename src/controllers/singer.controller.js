@@ -24,6 +24,8 @@ const createSinger = catchAsync(async (req, res) => {
     if (existingSinger) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Singer already exist!');
     }
+    console.log(req.file);
+    newSinger.image = req.file?.path;
     const singer = await Singer.create(newSinger);
     res.status(httpStatus.CREATED).json({ singer });
 });

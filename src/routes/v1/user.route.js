@@ -1,5 +1,6 @@
 const express = require('express');
 const { userController } = require('../../controllers/index.controller');
+const { uploadService } = require('../../services/index.service');
 
 const userRouter = express.Router();
 
@@ -43,11 +44,21 @@ userRouter
 userRouter
     .route('/')
     .get(auth, authorize(['admin']), userController.getUsers)
-    .post(userController.createUser);
+    .post(
+        auth,
+        authorize(['admin']),
+        uploadService.uploadImage.single('avatar'),
+        userController.createUser,
+    );
 userRouter
     .route('/:userId')
     .get(auth, userController.getUser)
-    .put(auth, authorize(['admin']), userController.updateUser)
+    .put(
+        auth,
+        authorize(['admin']),
+        uploadService.uploadImage.single('avatar'),
+        userController.updateUser,
+    )
     .delete(auth, authorize(['admin']), userController.deleteUser);
 
 module.exports = userRouter;

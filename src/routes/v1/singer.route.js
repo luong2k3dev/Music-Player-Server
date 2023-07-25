@@ -1,5 +1,6 @@
 const express = require('express');
 const { singerController } = require('../../controllers/index.controller');
+const { uploadService } = require('../../services/index.service');
 
 const singerRouter = express.Router();
 
@@ -8,7 +9,12 @@ const { auth, authorize } = require('../../middlewares/auth');
 singerRouter
     .route('/')
     .get(auth, singerController.getSingers)
-    .post(auth, authorize(['admin']), singerController.createSinger);
+    .post(
+        auth,
+        authorize(['admin']),
+        uploadService.uploadImage.single('image'),
+        singerController.createSinger,
+    );
 
 singerRouter
     .route('/:singerId')
