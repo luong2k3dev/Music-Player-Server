@@ -10,7 +10,8 @@ const albumSchema = mongoose.Schema(
         },
         image: {
             type: String,
-            default: 'No image',
+            default:
+                'https://res.cloudinary.com/dzlxu2dlv/image/upload/v1690137412/Music-Player-App/Default/e9cka08aikh5vb2jzj9g.jpg',
         },
         songs: [
             {

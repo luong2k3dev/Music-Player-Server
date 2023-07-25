@@ -10,7 +10,8 @@ const singerSchema = mongoose.Schema(
         },
         image: {
             type: String,
-            default: 'No image',
+            default:
+                'https://res.cloudinary.com/dzlxu2dlv/image/upload/v1690137208/Music-Player-App/Default/udkvvt29jubb6ixhidbd.jpg',
         },
         detail: {
             type: String,

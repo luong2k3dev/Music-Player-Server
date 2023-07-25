@@ -30,7 +30,18 @@ const envVarsSchema = Joi.object()
         EMAIL_FROM: Joi.string().description(
             'the from field in the emails sent by the app',
         ),
-        VERIFICATION_EMAIL_URL: Joi.string().description('type string'),
+        VERIFICATION_EMAIL_URL: Joi.string().description(
+            "URL for verifying the user's email",
+        ),
+        CLOUD_NAME: Joi.string().description(
+            'Cloudinary cloud name for media storage',
+        ),
+        API_KEY: Joi.string().description(
+            'API key for accessing the Cloudinary API',
+        ),
+        API_SECRET: Joi.string().description(
+            'API secret for accessing the Cloudinary API',
+        ),
     })
     .unknown();
 
@@ -72,5 +83,10 @@ module.exports = {
         },
         from: envVars.EMAIL_FROM,
         verificationEmailUrl: envVars.VERIFICATION_EMAIL_URL,
+    },
+    cloudinary: {
+        cloud_name: envVars.CLOUD_NAME,
+        api_key: envVars.API_KEY,
+        api_secret: envVars.API_SECRET,
     },
 };

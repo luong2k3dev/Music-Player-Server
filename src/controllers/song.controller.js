@@ -1,4 +1,4 @@
-const { Song } = require('../models/index.model');
+const { Song, User } = require('../models/index.model');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -13,6 +13,8 @@ const createSong = catchAsync(async (req, res) => {
     if (existSong) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Song alreary is exist!');
     }
+    console.log(req.file);
+    newSong.filePath = req.file?.path;
     const song = await Song.create(newSong);
     res.status(httpStatus.CREATED).json({ song });
 });
@@ -67,10 +69,20 @@ const incrementCountListen = catchAsync(async (req, res) => {
 
 const incrementLikeNumber = catchAsync(async (req, res) => {
     const { songId } = req.params;
+    const userId = req.user.id;
     const song = await Song.findById(songId);
     if (!song) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Song not found!');
     }
+    const user = await User.findById(userId);
+    if (user.favoriteSongs.includes(songId)) {
+        throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            'Song already added to favorites!',
+        );
+    }
+    user.favoriteSongs.push(songId);
+    await user.save();
     song.likeNumber += 1;
     await song.save();
     res.status(httpStatus.OK).json({ song });

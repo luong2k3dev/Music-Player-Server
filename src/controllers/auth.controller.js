@@ -7,7 +7,15 @@ const { tokenService, emailService } = require('../services/index.service');
 
 const register = catchAsync(async (req, res) => {
     const newUser = req.body;
-    const { username, password, email, firstName, lastName } = newUser;
+    const {
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+        gender,
+        dateOfBirth,
+    } = newUser;
     if (await User.isUsernameTaken(newUser.username)) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Username already taken');
     }
@@ -20,6 +28,8 @@ const register = catchAsync(async (req, res) => {
         email,
         firstName,
         lastName,
+        gender,
+        dateOfBirth,
     });
     const tokens = await tokenService.generateAuthTokens(user);
     res.status(httpStatus.CREATED).json({ user, tokens });

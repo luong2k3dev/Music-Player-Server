@@ -50,7 +50,8 @@ const userSchema = mongoose.Schema(
         },
         avatar: {
             type: String,
-            default: 'https://static.dhcnhn.vn/student',
+            default:
+                'https://res.cloudinary.com/dzlxu2dlv/image/upload/v1690136815/Music-Player-App/Default/g9e3aeu3mrnn5l1hu6qh.jpg',
         },
         gender: {
             type: String,

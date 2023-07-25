@@ -1,5 +1,6 @@
 const express = require('express');
 const { albumController } = require('../../controllers/index.controller');
+const { uploadService } = require('../../services/index.service');
 
 const albumRouter = express.Router();
 
@@ -8,7 +9,12 @@ const { auth, authorize } = require('../../middlewares/auth');
 albumRouter
     .route('/')
     .get(auth, albumController.getAlbums)
-    .post(auth, authorize(['admin']), albumController.createAlbum);
+    .post(
+        auth,
+        authorize(['admin']),
+        uploadService.uploadImage.single('image'),
+        albumController.createAlbum,
+    );
 
 albumRouter
     .route('/:albumId')
