@@ -1,4 +1,4 @@
-const { User, Token } = require('../models/index.model');
+const { User, Token, OTP } = require('../models/index.model');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -36,12 +36,14 @@ const register = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
+    const { usernameOrEmail, password } = req.body;
+    const user = await User.findOne({
+        $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+    });
     if (!user || !(await user.isPasswordMatch(password))) {
         throw new ApiError(
             httpStatus.UNAUTHORIZED,
-            'Incorrect username or password',
+            'Incorrect username/email or password',
         );
     }
     const tokens = await tokenService.generateAuthTokens(user);
@@ -136,6 +138,69 @@ const verifyEmail = catchAsync(async (req, res) => {
     });
 });
 
+// Use OTP to reset password
+const forgotPasswordOTP = catchAsync(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new ApiError(
+            httpStatus.NOT_FOUND,
+            'No users found with this email',
+        );
+    }
+    const otpDoc = await OTP.findOne({ email });
+    if (otpDoc) await OTP.deleteMany({ email });
+    const { otp, expiresIn } = emailService.generateOTP();
+    await OTP.create({ email, otp, expiresIn });
+    await emailService.sendResetPasswordOTP(email, otp);
+    res.status(httpStatus.OK).json({
+        message: 'Please check your mailbox to confirm the password change',
+    });
+});
+
+const verifyOTP = catchAsync(async (req, res) => {
+    const { email, otp } = req.body;
+    const otpDoc = await OTP.findOne({
+        otp,
+        expiresIn: { $gt: Date.now() },
+    });
+    if (!otpDoc || otpDoc.email != email) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid OTP or expired');
+    }
+    const user = await User.findOne({ email: otpDoc.email });
+    if (!user.isEmailVerified) user.isEmailVerified = true;
+    await user.save();
+    await OTP.deleteOne({ otp });
+    res.status(httpStatus.OK).json({
+        message: 'OTP verified successfully',
+    });
+});
+
+const resetPasswordOTP = catchAsync(async (req, res) => {
+    const { email, newPassword, confirmPassword } = req.body;
+    if (newPassword !== confirmPassword) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Passwords do not match');
+    }
+    if (!newPassword.match(/\d/) || !newPassword.match(/[a-zA-Z]/)) {
+        throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            'Password must contain at least one letter and one number',
+        );
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new ApiError(
+            httpStatus.NOT_FOUND,
+            'No users found with this email',
+        );
+    }
+    user.password = newPassword;
+    await user.save();
+    res.status(httpStatus.OK).json({
+        message: 'Password reset successfully',
+    });
+});
+
 module.exports = {
     register,
     login,
@@ -145,4 +210,7 @@ module.exports = {
     resetPassword,
     sendVerificationEmail,
     verifyEmail,
+    forgotPasswordOTP,
+    verifyOTP,
+    resetPasswordOTP,
 };

@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema(
             lowercase: true,
             validate(value) {
                 if (!validator.isEmail(value)) {
-                    throw new Error('Email không hợp lệ');
+                    throw new Error('Invalid email address');
                 }
             },
         },
