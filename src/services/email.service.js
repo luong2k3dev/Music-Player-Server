@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
+const { OTP } = require('../models/index.model');
 
 const transport = nodemailer.createTransport(config.email.smtp);
 transport
@@ -27,8 +28,16 @@ const sendVerificationEmail = async (to, token) => {
 };
 
 // Use OTP to reset password
-const generateOTP = () => {
-    const otp = Math.floor(100000 + Math.random() * 900000);
+const generateOTP = async () => {
+    let otp;
+    let isUnique = false;
+    while (!isUnique) {
+        otp = Math.floor(100000 + Math.random() * 900000);
+        const existingOTP = await OTP.findOne({ otp });
+        if (!existingOTP) {
+            isUnique = true;
+        }
+    }
     const expiresIn = Date.now() + 10 * 60 * 1000;
     return { otp, expiresIn };
 };
