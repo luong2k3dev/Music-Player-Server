@@ -4,6 +4,7 @@ const httpStatus = require('http-status');
 const routes = require('./routes/v1/index.route');
 const ApiError = require('./utils/ApiError');
 const { errorConverter, errorHandler } = require('./middlewares/error');
+const { requestRateLimiter } = require('./middlewares/rateLimiter');
 const config = require('./config/config');
 
 const app = express();
@@ -19,6 +20,8 @@ mongoose
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+app.use('/v1/auth', requestRateLimiter);
 
 app.use('/v1', routes);
 

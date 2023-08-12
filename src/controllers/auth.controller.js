@@ -150,7 +150,7 @@ const forgotPasswordOTP = catchAsync(async (req, res) => {
     }
     const otpDoc = await OTP.findOne({ email });
     if (otpDoc) await OTP.deleteMany({ email });
-    const { otp, expiresIn } = emailService.generateOTP();
+    const { otp, expiresIn } = await emailService.generateOTP();
     await OTP.create({ email, otp, expiresIn });
     await emailService.sendResetPasswordOTP(email, otp);
     res.status(httpStatus.OK).json({
